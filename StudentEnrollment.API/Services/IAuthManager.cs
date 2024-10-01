@@ -6,6 +6,6 @@ namespace StudentEnrollment.API.Services
     public interface IAuthManager
     {
         Task<AuthResponseDto> Login(LoginDto loginDto);
-        //Task<IEnumerable<IdentityError>> Register(RegisterDto registerDto);
+        Task<IEnumerable<IdentityError>> Register(RegisterDto registerDto);
     }
 }

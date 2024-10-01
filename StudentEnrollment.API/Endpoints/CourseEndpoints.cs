@@ -4,6 +4,7 @@ using StudentEnrollment.Data;
 using StudentEnrollment.API.DTOs.Course;
 using AutoMapper;
 using StudentEnrollment.Data.Contracts;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StudentEnrollment.API.Endpoints;
 
@@ -35,7 +36,7 @@ public static class CourseEndpoints
         .Produces<CourseDto>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound);
 
-        group.MapGet("/GetStudents/{id}", async (int id, ICourseRepository repo, IMapper mapper) =>
+        group.MapGet("/GetStudents/{id}",  async (int id, ICourseRepository repo, IMapper mapper) =>
         {
             return await repo.GetStudentList(id)
                 is Course model
@@ -48,7 +49,7 @@ public static class CourseEndpoints
         .Produces(StatusCodes.Status404NotFound);
 
 
-        group.MapPut("/{id}", async (int id, CourseDto courseDto, ICourseRepository repo, IMapper mapper) =>
+        group.MapPut("/{id}", [Authorize] async (int id, CourseDto courseDto, ICourseRepository repo, IMapper mapper) =>
         {
             var foundModel = await repo.GetAsync(id);
 
@@ -68,7 +69,7 @@ public static class CourseEndpoints
         .Produces(StatusCodes.Status404NotFound)
         .Produces(StatusCodes.Status204NoContent);
 
-        group.MapPost("/", async (CreateCourseDto courseDto, ICourseRepository repo, IMapper mapper) =>
+        group.MapPost("/", [Authorize] async (CreateCourseDto courseDto, ICourseRepository repo, IMapper mapper) =>
         {
             var course = mapper.Map<Course>(courseDto);
             await repo.AddAsync(course);
@@ -78,7 +79,7 @@ public static class CourseEndpoints
         .WithOpenApi()
         .Produces<Course>(StatusCodes.Status201Created);
 
-        group.MapDelete("/{id}", async (int id, ICourseRepository repo) =>
+        group.MapDelete("/{id}", [Authorize(Roles = "Administrator")] async (int id, ICourseRepository repo) =>
         {
             return await repo.DeleteAsync(id) ? Results.NoContent() : Results.NotFound();
         })
